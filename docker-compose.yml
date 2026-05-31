@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: ms-reportes-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ms-reportes-net
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ms-reportes-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      NODE_ENV: production
+      PORT: ${PORT}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public
+      MS_ENTIDADES_URL: ${MS_ENTIDADES_URL}
+      MS_INVENTARIO_URL: ${MS_INVENTARIO_URL}
+      MS_AGENDA_URL: ${MS_AGENDA_URL}
+      MS_HISTORIA_URL: ${MS_HISTORIA_URL}
+      MS_VENTAS_URL: ${MS_VENTAS_URL}
+      CACHE_TTL_MINUTES: ${CACHE_TTL_MINUTES:-5}
+      SNAPSHOT_INTERVAL_MINUTES: ${SNAPSHOT_INTERVAL_MINUTES:-15}
+      MAX_DATE_RANGE_DAYS: ${MAX_DATE_RANGE_DAYS:-366}
+    ports:
+      - "${PORT}:${PORT}"
+    networks:
+      - ms-reportes-net
+
+volumes:
+  postgres_data:
+
+networks:
+  ms-reportes-net:
+    driver: bridge
