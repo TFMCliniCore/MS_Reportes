@@ -1,0 +1,866 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "MS Reportes y Métricas",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Colección Postman — MS Reportes y Métricas — CliniCore\n\nTodos los endpoints son GET con parámetros en query string.\n\nRespuesta estándar (reportes):\n  { \"data\": [...], \"resumen\": {...}, \"fuentesFallidas\": [], \"generadoEn\": \"ISO\" }\n\nRespuesta métricas/dashboard:\n  { \"inventario\": { totalProductos, valorInventarioCompra, valorInventarioVenta, stockBajo },\n    \"pacientes\": { total }, \"clientes\": { total },\n    \"agenda\": { citasHoy, citasMes, completadasMes, canceladasMes, pendientesMes, tasaCompletadasMes },\n    \"fuentesFallidas\": [], \"generadoEn\": \"ISO\" }\n\nEstados de cita válidos : NO_COMPLETADO | COMPLETADO | CANCELADO\nTipos de movimiento     : ENTRADA | SALIDA | AJUSTE\nAgrupación de ventas    : dia | semana | mes\nPeriodos de métricas    : HOY | SEMANA | MES | TRIMESTRE | ANUAL\n\n⚠️ Importar también el entorno 'MS_Reportes.postman_environment.json' y seleccionarlo antes de ejecutar."
+  },
+  "item": [
+    {
+      "name": "🔍 Health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Verifica que el MS está activo y la conexión a BD responde."
+          }
+        }
+      ]
+    },
+    {
+      "name": "📈 Métricas",
+      "item": [
+        {
+          "name": "Dashboard — global",
+          "request": {
+            "method": "GET", "header": [],
+            "url": { "raw": "{{baseUrl}}/reportes/metricas/dashboard", "host": ["{{baseUrl}}"], "path": ["reportes","metricas","dashboard"] },
+            "description": "Calcula KPIs en tiempo real consultando los MS fuente.\n\nRespuesta:\n{\n  \"inventario\": { \"totalProductos\": 124, \"valorInventarioCompra\": 12500.00, \"valorInventarioVenta\": 54320.50, \"stockBajo\": 8 },\n  \"pacientes\":  { \"total\": 152 },\n  \"clientes\":   { \"total\": 89 },\n  \"agenda\": { \"citasHoy\": 5, \"citasMes\": 23, \"completadasMes\": 18, \"canceladasMes\": 2, \"pendientesMes\": 3, \"tasaCompletadasMes\": 78.3 },\n  \"fuentesFallidas\": [],\n  \"generadoEn\": \"ISO\"\n}"
+          }
+        },
+        {
+          "name": "Dashboard — por sucursal",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/metricas/dashboard?sucursalId={{sucursalId}}",
+              "host": ["{{baseUrl}}"], "path": ["reportes","metricas","dashboard"],
+              "query": [{"key":"sucursalId","value":"{{sucursalId}}"}]
+            },
+            "description": "Misma respuesta que el dashboard global, filtrado por sucursal."
+          }
+        },
+        {
+          "name": "Métricas de ventas — MES",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/metricas/ventas?periodo=MES",
+              "host": ["{{baseUrl}}"], "path": ["reportes","metricas","ventas"],
+              "query": [{"key":"periodo","value":"MES"}]
+            },
+            "description": "Periodos: HOY | SEMANA | MES | TRIMESTRE | ANUAL\n\nRespuesta: { periodo, totalVentas, totalTransacciones, ticketPromedio, detalle: [...], fuentesFallidas, generadoEn }"
+          }
+        },
+        {
+          "name": "Métricas de ventas — HOY",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/metricas/ventas?periodo=HOY",
+              "host": ["{{baseUrl}}"], "path": ["reportes","metricas","ventas"],
+              "query": [{"key":"periodo","value":"HOY"}]
+            }
+          }
+        },
+        {
+          "name": "Métricas de ventas — SEMANA",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/metricas/ventas?periodo=SEMANA",
+              "host": ["{{baseUrl}}"], "path": ["reportes","metricas","ventas"],
+              "query": [{"key":"periodo","value":"SEMANA"}]
+            }
+          }
+        },
+        {
+          "name": "Métricas de ventas — ANUAL",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/metricas/ventas?periodo=ANUAL",
+              "host": ["{{baseUrl}}"], "path": ["reportes","metricas","ventas"],
+              "query": [{"key":"periodo","value":"ANUAL"}]
+            }
+          }
+        },
+        {
+          "name": "Métricas de ventas — por sucursal MES",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/metricas/ventas?sucursalId={{sucursalId}}&periodo=MES",
+              "host": ["{{baseUrl}}"], "path": ["reportes","metricas","ventas"],
+              "query": [{"key":"sucursalId","value":"{{sucursalId}}"},{"key":"periodo","value":"MES"}]
+            }
+          }
+        },
+        {
+          "name": "Métricas de citas — mes actual",
+          "request": {
+            "method": "GET", "header": [],
+            "url": { "raw": "{{baseUrl}}/reportes/metricas/citas", "host": ["{{baseUrl}}"], "path": ["reportes","metricas","citas"] },
+            "description": "Respuesta: { periodo: 'MES', total, completadas, canceladas, pendientes, tasaCompletadas (%), tasaCanceladas (%), porTipo: { Consulta: N, Vacunacion: N, ... }, fuentesFallidas, generadoEn }"
+          }
+        },
+        {
+          "name": "Métricas de citas — por sucursal",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/metricas/citas?sucursalId={{sucursalId}}",
+              "host": ["{{baseUrl}}"], "path": ["reportes","metricas","citas"],
+              "query": [{"key":"sucursalId","value":"{{sucursalId}}"}]
+            }
+          }
+        },
+        {
+          "name": "Métricas de inventario — global",
+          "request": {
+            "method": "GET", "header": [],
+            "url": { "raw": "{{baseUrl}}/reportes/metricas/inventario", "host": ["{{baseUrl}}"], "path": ["reportes","metricas","inventario"] },
+            "description": "Respuesta: { totalProductos, valorInventarioCompra, valorInventarioVenta, stockBajo, fuentesFallidas, generadoEn }\n\nstockBajo = productos con cantidadActual <= cantidadMinima."
+          }
+        },
+        {
+          "name": "Métricas de inventario — por sucursal",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/metricas/inventario?sucursalId={{sucursalId}}",
+              "host": ["{{baseUrl}}"], "path": ["reportes","metricas","inventario"],
+              "query": [{"key":"sucursalId","value":"{{sucursalId}}"}]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "👥 Clientes",
+      "item": [
+        {
+          "name": "Todos los clientes activos",
+          "request": {
+            "method": "GET", "header": [],
+            "url": { "raw": "{{baseUrl}}/reportes/clientes", "host": ["{{baseUrl}}"], "path": ["reportes","clientes"] },
+            "description": "MS Entidades no filtra por fecha. Devuelve todos los clientes activos."
+          }
+        },
+        {
+          "name": "Clientes — por sucursal",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/clientes?sucursalId={{sucursalId}}",
+              "host": ["{{baseUrl}}"], "path": ["reportes","clientes"],
+              "query": [{"key":"sucursalId","value":"{{sucursalId}}"}]
+            }
+          }
+        },
+        {
+          "name": "Sin visita reciente — 60 días",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/clientes/sin-visita?diasSinVisita=60&sucursalId={{sucursalId}}",
+              "host": ["{{baseUrl}}"], "path": ["reportes","clientes","sin-visita"],
+              "query": [{"key":"diasSinVisita","value":"60"},{"key":"sucursalId","value":"{{sucursalId}}"}]
+            }
+          }
+        },
+        {
+          "name": "Sin visita reciente — 90 días",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/clientes/sin-visita?diasSinVisita=90",
+              "host": ["{{baseUrl}}"], "path": ["reportes","clientes","sin-visita"],
+              "query": [{"key":"diasSinVisita","value":"90"}]
+            }
+          }
+        },
+        {
+          "name": "Top clientes por gasto — top 10",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/clientes/top-gasto?limite=10",
+              "host": ["{{baseUrl}}"], "path": ["reportes","clientes","top-gasto"],
+              "query": [{"key":"limite","value":"10"}]
+            }
+          }
+        },
+        {
+          "name": "Top clientes por gasto — con fechas y sucursal",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/clientes/top-gasto?desde=2026-01-01&hasta=2026-05-31&limite=20&sucursalId={{sucursalId}}",
+              "host": ["{{baseUrl}}"], "path": ["reportes","clientes","top-gasto"],
+              "query": [
+                {"key":"desde","value":"2026-01-01"},
+                {"key":"hasta","value":"2026-05-31"},
+                {"key":"limite","value":"20"},
+                {"key":"sucursalId","value":"{{sucursalId}}"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🐾 Pacientes",
+      "item": [
+        {
+          "name": "Todos los pacientes activos",
+          "request": {
+            "method": "GET", "header": [],
+            "url": { "raw": "{{baseUrl}}/reportes/pacientes", "host": ["{{baseUrl}}"], "path": ["reportes","pacientes"] }
+          }
+        },
+        {
+          "name": "Pacientes — por sucursal",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/pacientes?sucursalId={{sucursalId}}",
+              "host": ["{{baseUrl}}"], "path": ["reportes","pacientes"],
+              "query": [{"key":"sucursalId","value":"{{sucursalId}}"}]
+            }
+          }
+        },
+        {
+          "name": "Pacientes — filtro por especie",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/pacientes?especie=Canino",
+              "host": ["{{baseUrl}}"], "path": ["reportes","pacientes"],
+              "query": [{"key":"especie","value":"Canino"}]
+            }
+          }
+        },
+        {
+          "name": "Pacientes — filtro por especie y raza",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/pacientes?especie=Canino&raza=Golden Retriever",
+              "host": ["{{baseUrl}}"], "path": ["reportes","pacientes"],
+              "query": [{"key":"especie","value":"Canino"},{"key":"raza","value":"Golden Retriever"}]
+            }
+          }
+        },
+        {
+          "name": "Vacunas próximas a vencer — 30 días",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/pacientes/vacunas-vencer?diasAlerta=30&sucursalId={{sucursalId}}",
+              "host": ["{{baseUrl}}"], "path": ["reportes","pacientes","vacunas-vencer"],
+              "query": [{"key":"diasAlerta","value":"30"},{"key":"sucursalId","value":"{{sucursalId}}"}]
+            }
+          }
+        },
+        {
+          "name": "Vacunas próximas a vencer — 60 días global",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/pacientes/vacunas-vencer?diasAlerta=60",
+              "host": ["{{baseUrl}}"], "path": ["reportes","pacientes","vacunas-vencer"],
+              "query": [{"key":"diasAlerta","value":"60"}]
+            }
+          }
+        },
+        {
+          "name": "Ficha clínica completa — paciente 1",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/pacientes/1/ficha",
+              "host": ["{{baseUrl}}"], "path": ["reportes","pacientes","1","ficha"]
+            },
+            "description": "Usa historia-clinica/ficha/:id de MS Historia. Devuelve: paciente + historias + citas + recordatorios."
+          }
+        },
+        {
+          "name": "Ficha clínica completa — paciente 2",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/pacientes/2/ficha",
+              "host": ["{{baseUrl}}"], "path": ["reportes","pacientes","2","ficha"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📋 Historia Clínica",
+      "item": [
+        {
+          "name": "Historias clínicas — todas",
+          "request": {
+            "method": "GET", "header": [],
+            "url": { "raw": "{{baseUrl}}/reportes/historia-clinica", "host": ["{{baseUrl}}"], "path": ["reportes","historia-clinica"] }
+          }
+        },
+        {
+          "name": "Historias clínicas — por sucursal",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/historia-clinica?sucursalId={{sucursalId}}",
+              "host": ["{{baseUrl}}"], "path": ["reportes","historia-clinica"],
+              "query": [{"key":"sucursalId","value":"{{sucursalId}}"}]
+            }
+          }
+        },
+        {
+          "name": "Historias clínicas — por rango de fechas",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/historia-clinica?desde=2026-01-01&hasta=2026-05-31",
+              "host": ["{{baseUrl}}"], "path": ["reportes","historia-clinica"],
+              "query": [{"key":"desde","value":"2026-01-01"},{"key":"hasta","value":"2026-05-31"}]
+            }
+          }
+        },
+        {
+          "name": "Historias clínicas — por paciente",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/historia-clinica?pacienteId=1",
+              "host": ["{{baseUrl}}"], "path": ["reportes","historia-clinica"],
+              "query": [{"key":"pacienteId","value":"1"}]
+            }
+          }
+        },
+        {
+          "name": "Historias clínicas — sucursal + rango",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/historia-clinica?sucursalId={{sucursalId}}&desde=2026-01-01&hasta=2026-05-31",
+              "host": ["{{baseUrl}}"], "path": ["reportes","historia-clinica"],
+              "query": [
+                {"key":"sucursalId","value":"{{sucursalId}}"},
+                {"key":"desde","value":"2026-01-01"},
+                {"key":"hasta","value":"2026-05-31"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📅 Citas",
+      "item": [
+        {
+          "name": "Todas las citas",
+          "request": {
+            "method": "GET", "header": [],
+            "url": { "raw": "{{baseUrl}}/reportes/citas", "host": ["{{baseUrl}}"], "path": ["reportes","citas"] },
+            "description": "Params: desde, hasta (ISO), estado (NO_COMPLETADO|COMPLETADO|CANCELADO), tipo, pacienteId"
+          }
+        },
+        {
+          "name": "Citas — por rango de fechas",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/citas?desde=2026-05-01T00:00:00&hasta=2026-05-31T23:59:59",
+              "host": ["{{baseUrl}}"], "path": ["reportes","citas"],
+              "query": [{"key":"desde","value":"2026-05-01T00:00:00"},{"key":"hasta","value":"2026-05-31T23:59:59"}]
+            }
+          }
+        },
+        {
+          "name": "Citas — estado COMPLETADO",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/citas?estado=COMPLETADO",
+              "host": ["{{baseUrl}}"], "path": ["reportes","citas"],
+              "query": [{"key":"estado","value":"COMPLETADO"}]
+            }
+          }
+        },
+        {
+          "name": "Citas — estado NO_COMPLETADO",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/citas?estado=NO_COMPLETADO",
+              "host": ["{{baseUrl}}"], "path": ["reportes","citas"],
+              "query": [{"key":"estado","value":"NO_COMPLETADO"}]
+            }
+          }
+        },
+        {
+          "name": "Citas — estado CANCELADO",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/citas?estado=CANCELADO",
+              "host": ["{{baseUrl}}"], "path": ["reportes","citas"],
+              "query": [{"key":"estado","value":"CANCELADO"}]
+            }
+          }
+        },
+        {
+          "name": "Citas — por tipo Vacunacion",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/citas?tipo=Vacunacion",
+              "host": ["{{baseUrl}}"], "path": ["reportes","citas"],
+              "query": [{"key":"tipo","value":"Vacunacion"}]
+            }
+          }
+        },
+        {
+          "name": "Citas — por tipo Consulta",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/citas?tipo=Consulta",
+              "host": ["{{baseUrl}}"], "path": ["reportes","citas"],
+              "query": [{"key":"tipo","value":"Consulta"}]
+            }
+          }
+        },
+        {
+          "name": "Citas — por paciente",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/citas?pacienteId=1",
+              "host": ["{{baseUrl}}"], "path": ["reportes","citas"],
+              "query": [{"key":"pacienteId","value":"1"}]
+            }
+          }
+        },
+        {
+          "name": "Tasa de asistencia — todas las citas",
+          "request": {
+            "method": "GET", "header": [],
+            "url": { "raw": "{{baseUrl}}/reportes/citas/tasa-asistencia", "host": ["{{baseUrl}}"], "path": ["reportes","citas","tasa-asistencia"] },
+            "description": "Calcula tasaCompletadas (%), tasaCanceladas (%) y tasaPendientes (%). Se calcula aquí porque MS Agenda no expone este endpoint."
+          }
+        },
+        {
+          "name": "Tasa de asistencia — rango de fechas",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/citas/tasa-asistencia?desde=2026-05-01T00:00:00&hasta=2026-05-31T23:59:59",
+              "host": ["{{baseUrl}}"], "path": ["reportes","citas","tasa-asistencia"],
+              "query": [{"key":"desde","value":"2026-05-01T00:00:00"},{"key":"hasta","value":"2026-05-31T23:59:59"}]
+            }
+          }
+        },
+        {
+          "name": "Tasa de asistencia — por paciente",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/citas/tasa-asistencia?pacienteId=1",
+              "host": ["{{baseUrl}}"], "path": ["reportes","citas","tasa-asistencia"],
+              "query": [{"key":"pacienteId","value":"1"}]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔔 Recordatorios",
+      "item": [
+        {
+          "name": "Todos los recordatorios",
+          "request": {
+            "method": "GET", "header": [],
+            "url": { "raw": "{{baseUrl}}/reportes/recordatorios", "host": ["{{baseUrl}}"], "path": ["reportes","recordatorios"] }
+          }
+        },
+        {
+          "name": "Recordatorios — por rango de fechas",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/recordatorios?desde=2026-05-01T00:00:00&hasta=2026-05-31T23:59:59",
+              "host": ["{{baseUrl}}"], "path": ["reportes","recordatorios"],
+              "query": [{"key":"desde","value":"2026-05-01T00:00:00"},{"key":"hasta","value":"2026-05-31T23:59:59"}]
+            }
+          }
+        },
+        {
+          "name": "Recordatorios — estado NO_COMPLETADO",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/recordatorios?estado=NO_COMPLETADO",
+              "host": ["{{baseUrl}}"], "path": ["reportes","recordatorios"],
+              "query": [{"key":"estado","value":"NO_COMPLETADO"}]
+            }
+          }
+        },
+        {
+          "name": "Recordatorios — estado COMPLETADO",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/recordatorios?estado=COMPLETADO",
+              "host": ["{{baseUrl}}"], "path": ["reportes","recordatorios"],
+              "query": [{"key":"estado","value":"COMPLETADO"}]
+            }
+          }
+        },
+        {
+          "name": "Recordatorios — por paciente",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/recordatorios?pacienteId=1",
+              "host": ["{{baseUrl}}"], "path": ["reportes","recordatorios"],
+              "query": [{"key":"pacienteId","value":"1"}]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏥 Sala de Espera",
+      "item": [
+        {
+          "name": "Todas las entradas de sala de espera",
+          "request": {
+            "method": "GET", "header": [],
+            "url": { "raw": "{{baseUrl}}/reportes/sala-espera", "host": ["{{baseUrl}}"], "path": ["reportes","sala-espera"] }
+          }
+        },
+        {
+          "name": "Sala de espera — por rango de fechas",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/sala-espera?desde=2026-05-31T00:00:00&hasta=2026-05-31T23:59:59",
+              "host": ["{{baseUrl}}"], "path": ["reportes","sala-espera"],
+              "query": [{"key":"desde","value":"2026-05-31T00:00:00"},{"key":"hasta","value":"2026-05-31T23:59:59"}]
+            }
+          }
+        },
+        {
+          "name": "Sala de espera — por paciente",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/sala-espera?pacienteId=1",
+              "host": ["{{baseUrl}}"], "path": ["reportes","sala-espera"],
+              "query": [{"key":"pacienteId","value":"1"}]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📦 Inventario",
+      "item": [
+        {
+          "name": "Stock actual — todos",
+          "request": {
+            "method": "GET", "header": [],
+            "url": { "raw": "{{baseUrl}}/reportes/inventario/stock", "host": ["{{baseUrl}}"], "path": ["reportes","inventario","stock"] }
+          }
+        },
+        {
+          "name": "Stock actual — por sucursal",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/inventario/stock?sucursalId={{sucursalId}}",
+              "host": ["{{baseUrl}}"], "path": ["reportes","inventario","stock"],
+              "query": [{"key":"sucursalId","value":"{{sucursalId}}"}]
+            }
+          }
+        },
+        {
+          "name": "Stock actual — por categoría",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/inventario/stock?categoriaId=1",
+              "host": ["{{baseUrl}}"], "path": ["reportes","inventario","stock"],
+              "query": [{"key":"categoriaId","value":"1"}]
+            }
+          }
+        },
+        {
+          "name": "Stock actual — solo bajo mínimo",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/inventario/stock?stockBajo=true",
+              "host": ["{{baseUrl}}"], "path": ["reportes","inventario","stock"],
+              "query": [{"key":"stockBajo","value":"true"}]
+            },
+            "description": "Filtra directamente en MS Inventario con ?stockBajo=true"
+          }
+        },
+        {
+          "name": "Movimientos de stock — todos",
+          "request": {
+            "method": "GET", "header": [],
+            "url": { "raw": "{{baseUrl}}/reportes/inventario/movimientos", "host": ["{{baseUrl}}"], "path": ["reportes","inventario","movimientos"] },
+            "description": "Tipos: ENTRADA | SALIDA | AJUSTE"
+          }
+        },
+        {
+          "name": "Movimientos — tipo SALIDA",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/inventario/movimientos?tipo=SALIDA",
+              "host": ["{{baseUrl}}"], "path": ["reportes","inventario","movimientos"],
+              "query": [{"key":"tipo","value":"SALIDA"}]
+            }
+          }
+        },
+        {
+          "name": "Movimientos — tipo ENTRADA",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/inventario/movimientos?tipo=ENTRADA",
+              "host": ["{{baseUrl}}"], "path": ["reportes","inventario","movimientos"],
+              "query": [{"key":"tipo","value":"ENTRADA"}]
+            }
+          }
+        },
+        {
+          "name": "Movimientos — tipo AJUSTE",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/inventario/movimientos?tipo=AJUSTE",
+              "host": ["{{baseUrl}}"], "path": ["reportes","inventario","movimientos"],
+              "query": [{"key":"tipo","value":"AJUSTE"}]
+            }
+          }
+        },
+        {
+          "name": "Movimientos — por producto",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/inventario/movimientos?productoId=1",
+              "host": ["{{baseUrl}}"], "path": ["reportes","inventario","movimientos"],
+              "query": [{"key":"productoId","value":"1"}]
+            }
+          }
+        },
+        {
+          "name": "Movimientos — por sucursal y tipo",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/inventario/movimientos?sucursalId={{sucursalId}}&tipo=SALIDA",
+              "host": ["{{baseUrl}}"], "path": ["reportes","inventario","movimientos"],
+              "query": [{"key":"sucursalId","value":"{{sucursalId}}"},{"key":"tipo","value":"SALIDA"}]
+            }
+          }
+        },
+        {
+          "name": "Valorización del inventario — global",
+          "request": {
+            "method": "GET", "header": [],
+            "url": { "raw": "{{baseUrl}}/reportes/inventario/valoracion", "host": ["{{baseUrl}}"], "path": ["reportes","inventario","valoracion"] },
+            "description": "Resumen incluye: totalValorCompra, totalValorVenta, margenPotencial, totalProductos"
+          }
+        },
+        {
+          "name": "Valorización del inventario — por sucursal",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/inventario/valoracion?sucursalId={{sucursalId}}",
+              "host": ["{{baseUrl}}"], "path": ["reportes","inventario","valoracion"],
+              "query": [{"key":"sucursalId","value":"{{sucursalId}}"}]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "💰 Ventas",
+      "item": [
+        {
+          "name": "Ventas del período — agrupado por día",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/ventas?desde=2026-05-01&hasta=2026-05-31&agrupacion=dia&sucursalId={{sucursalId}}",
+              "host": ["{{baseUrl}}"], "path": ["reportes","ventas"],
+              "query": [{"key":"desde","value":"2026-05-01"},{"key":"hasta","value":"2026-05-31"},{"key":"agrupacion","value":"dia"},{"key":"sucursalId","value":"{{sucursalId}}"}]
+            }
+          }
+        },
+        {
+          "name": "Ventas del período — agrupado por mes",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/ventas?desde=2026-01-01&hasta=2026-05-31&agrupacion=mes",
+              "host": ["{{baseUrl}}"], "path": ["reportes","ventas"],
+              "query": [{"key":"desde","value":"2026-01-01"},{"key":"hasta","value":"2026-05-31"},{"key":"agrupacion","value":"mes"}]
+            }
+          }
+        },
+        {
+          "name": "Ventas del período — agrupado por semana",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/ventas?desde=2026-05-01&hasta=2026-05-31&agrupacion=semana",
+              "host": ["{{baseUrl}}"], "path": ["reportes","ventas"],
+              "query": [{"key":"desde","value":"2026-05-01"},{"key":"hasta","value":"2026-05-31"},{"key":"agrupacion","value":"semana"}]
+            }
+          }
+        },
+        {
+          "name": "Top productos vendidos — top 10",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/ventas/por-producto?desde=2026-05-01&hasta=2026-05-31&limite=10&sucursalId={{sucursalId}}",
+              "host": ["{{baseUrl}}"], "path": ["reportes","ventas","por-producto"],
+              "query": [{"key":"desde","value":"2026-05-01"},{"key":"hasta","value":"2026-05-31"},{"key":"limite","value":"10"},{"key":"sucursalId","value":"{{sucursalId}}"}]
+            }
+          }
+        },
+        {
+          "name": "Top productos vendidos — top 20 global",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/ventas/por-producto?desde=2026-01-01&hasta=2026-05-31&limite=20",
+              "host": ["{{baseUrl}}"], "path": ["reportes","ventas","por-producto"],
+              "query": [{"key":"desde","value":"2026-01-01"},{"key":"hasta","value":"2026-05-31"},{"key":"limite","value":"20"}]
+            }
+          }
+        },
+        {
+          "name": "Ventas por categoría — mensual",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/ventas/por-categoria?desde=2026-05-01&hasta=2026-05-31&sucursalId={{sucursalId}}",
+              "host": ["{{baseUrl}}"], "path": ["reportes","ventas","por-categoria"],
+              "query": [{"key":"desde","value":"2026-05-01"},{"key":"hasta","value":"2026-05-31"},{"key":"sucursalId","value":"{{sucursalId}}"}]
+            }
+          }
+        },
+        {
+          "name": "Ventas por categoría — anual",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/ventas/por-categoria?desde=2026-01-01&hasta=2026-12-31",
+              "host": ["{{baseUrl}}"], "path": ["reportes","ventas","por-categoria"],
+              "query": [{"key":"desde","value":"2026-01-01"},{"key":"hasta","value":"2026-12-31"}]
+            }
+          }
+        },
+        {
+          "name": "Caja diaria",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/ventas/caja-diaria?fecha=2026-05-31&sucursalId={{sucursalId}}",
+              "host": ["{{baseUrl}}"], "path": ["reportes","ventas","caja-diaria"],
+              "query": [{"key":"fecha","value":"2026-05-31"},{"key":"sucursalId","value":"{{sucursalId}}"}]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🗒️ Logs de auditoría",
+      "item": [
+        {
+          "name": "Listar logs — página 1",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/logs?page=1&limit=20",
+              "host": ["{{baseUrl}}"], "path": ["reportes","logs"],
+              "query": [{"key":"page","value":"1"},{"key":"limit","value":"20"}]
+            }
+          }
+        },
+        {
+          "name": "Listar logs — tipo CITAS",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/logs?tipo=CITAS",
+              "host": ["{{baseUrl}}"], "path": ["reportes","logs"],
+              "query": [{"key":"tipo","value":"CITAS"}]
+            }
+          }
+        },
+        {
+          "name": "Listar logs — tipo HISTORIA_CLINICA",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/logs?tipo=HISTORIA_CLINICA",
+              "host": ["{{baseUrl}}"], "path": ["reportes","logs"],
+              "query": [{"key":"tipo","value":"HISTORIA_CLINICA"}]
+            }
+          }
+        },
+        {
+          "name": "Listar logs — tipo INVENTARIO",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/logs?tipo=INVENTARIO",
+              "host": ["{{baseUrl}}"], "path": ["reportes","logs"],
+              "query": [{"key":"tipo","value":"INVENTARIO"}]
+            }
+          }
+        },
+        {
+          "name": "Listar logs — por sucursal",
+          "request": {
+            "method": "GET", "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reportes/logs?sucursalId={{sucursalId}}&limit=50",
+              "host": ["{{baseUrl}}"], "path": ["reportes","logs"],
+              "query": [{"key":"sucursalId","value":"{{sucursalId}}"},{"key":"limit","value":"50"}]
+            }
+          }
+        },
+        {
+          "name": "Obtener log por id",
+          "request": {
+            "method": "GET", "header": [],
+            "url": { "raw": "{{baseUrl}}/reportes/logs/1", "host": ["{{baseUrl}}"], "path": ["reportes","logs","1"] }
+          }
+        }
+      ]
+    }
+  ]
+}
