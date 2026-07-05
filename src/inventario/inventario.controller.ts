@@ -1,14 +1,17 @@
 import { Controller, Get, Query, Req } from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { InventarioService } from './inventario.service';
 import { StockDto, MovimientosDto, ValoracionDto } from './dto/reporte-inventario.dto';
 import { ReporteMeta } from '../interceptors/reporte-log.interceptor';
 
+@ApiTags('Reportes - Inventario')
 @Controller('reportes/inventario')
 export class InventarioController {
   constructor(private readonly inventarioService: InventarioService) {}
 
   @Get('stock')
+  @ApiOperation({ summary: 'Consultar niveles de stock actuales, stock crítico y alertas de reposición' })
   async stock(@Query() query: StockDto, @Req() req: Request & { reporteMeta?: ReporteMeta }) {
     req.reporteMeta = {
       tipo: 'INVENTARIO',
@@ -22,6 +25,7 @@ export class InventarioController {
   }
 
   @Get('movimientos')
+  @ApiOperation({ summary: 'Auditar el flujo de movimientos de stock (entradas, salidas y ajustes por merma)' })
   async movimientos(@Query() query: MovimientosDto, @Req() req: Request & { reporteMeta?: ReporteMeta }) {
     req.reporteMeta = {
       tipo: 'INVENTARIO',
@@ -35,6 +39,7 @@ export class InventarioController {
   }
 
   @Get('valoracion')
+  @ApiOperation({ summary: 'Generar balance de la valoración monetaria del inventario disponible en almacenes' })
   async valoracion(@Query() query: ValoracionDto, @Req() req: Request & { reporteMeta?: ReporteMeta }) {
     req.reporteMeta = {
       tipo: 'INVENTARIO',

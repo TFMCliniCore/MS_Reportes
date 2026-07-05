@@ -12,7 +12,7 @@ import { PacientesModule } from './pacientes/pacientes.module';
 import { CitasModule } from './citas/citas.module';
 import { InventarioModule } from './inventario/inventario.module';
 import { VentasModule } from './ventas/ventas.module';
-import { LogsModule } from './logs/logs.module';
+
 import { HealthController } from './health/health.controller';
 
 @Module({
@@ -26,7 +26,6 @@ import { HealthController } from './health/health.controller';
     CitasModule,
     InventarioModule,
     VentasModule,
-    LogsModule,
   ],
   controllers: [HealthController],
   providers: [
